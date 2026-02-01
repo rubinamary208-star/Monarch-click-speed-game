@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Click Speed Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: white;
+    }
+
+    #bestScoreBox {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: #1e1e1e;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 2px solid lime;
+    }
+
+    #leaderboard {
+      position: fixed;
+      top: 80px;
+      right: 10px;
+      background: #1e1e1e;
+      padding: 15px;
+      width: 220px;
+      border-radius: 10px;
+      border: 2px solid cyan;
+    }
+
+    #leaderboard h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    #game {
+      text-align: center;
+      margin-top: 120px;
+    }
+
+    input {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .game-btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .start-btn {
+      background: linear-gradient(#7CFC00, #32CD32);
+      color: black;
+    }
+
+    .click-btn {
+      background: linear-gradient(#00FFFF, #00BFCF);
+      color: #003333;
+    }
+
+    #timer {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+
+    #score {
+      font-size: 22px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- BEST SCORE -->
+  <div id="bestScoreBox">
+    Best Score: <span id="bestScore">0</span>
+  </div>
+
+  <!-- MANUAL LEADERBOARD -->
+  <div id="leaderboard">
+    <h3>Leaderboard</h3>
+    <ol>
+      <li>---</li>
+      <li>---</li>
+      <li>---</li>
+    </ol>
+  </div>
+
+  <!-- GAME AREA -->
+  <div id="game">
+    <h1>Click Speed Game</h1>
+
+    <input id="username" placeholder="Enter username">
+
+    <br><br>
+
+    <button class="game-btn start-btn" onclick="startGame()">
+      START
+    </button>
+
+    <br>
+
+    <button class="game-btn click-btn" onclick="countClick()" disabled>
+      CLICK FAST
+    </button>
+
+    <div id="timer">Time Left: 10s</div>
+    <div id="score">Score: 0</div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    let score = 0;
+    let playing = false;
+    let lastClickTime = 0;
+    let timeLeft = 10;
+    let timerInterval;
+
+    const clickBtn = document.querySelector(".click-btn");
+    const scoreText = document.getElementById("score");
+    const timerText = document.getElementById("timer");
+    const bestScoreText = document.getElementById("bestScore");
+
+    let bestScore = localStorage.getItem("bestScore") || 0;
+    bestScoreText.innerText = bestScore;
+
+    function startGame() {
+      if (playing) return;
+
+      score = 0;
+      timeLeft = 10;
+      playing = true;
+      lastClickTime = 0;
+
+      scoreText.innerText = "Score: 0";
+      timerText.innerText = "Time Left: 10s";
+      clickBtn.disabled = false;
+
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      timeLeft--;
+      timerText.innerText = "Time Left: " + timeLeft + "s";
+
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }
+
+    function countClick() {
+      if (!playing) return;
+
+      let now = Date.now();
+
+      // Anti auto-clicker
+      if (now - lastClickTime < 30) {
+        alert("Auto-clicker detected!");
+        endGame();
+        return;
+      }
+
+      lastClickTime = now;
+      score++;
+      scoreText.innerText = "Score: " + score;
+    }
+
+    function endGame() {
+      playing = false;
+      clickBtn.disabled = true;
+      clearInterval(timerInterval);
+
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem("bestScore", bestScore);
+        bestScoreText.innerText = bestScore;
+        alert("NEW BEST SCORE: " + bestScore);
+      } else {
+        alert("Your score: " + score);
+      }
+    }
+  </script>
+
+</body>
+</html>
